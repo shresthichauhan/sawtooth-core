@@ -175,3 +175,12 @@ class TestIdentity(TransactionProcessorTestCase):
         self._policy("", "PERMIT_KEY *")
         self._expect_setting_get(ALLOWED_SIGNER_ADDRESS)
         self._expect_invalid_transaction()
+
+    def test_set_policy_wrong_name(self):
+        """
+        Test set a wrong name, where wrong policy name is set.
+        This should return Internal error
+        """
+        self._policy("", "DENY_KEY *")
+        self._expect_setting_get(ALLOWED_SIGNER_ADDRESS)
+        self._expect_internal_error()    
