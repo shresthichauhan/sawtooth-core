@@ -76,9 +76,10 @@ def get_receipts(transaction_id):
     response = query_rest_api('/receipts', data=transaction_id, headers=headers)
     return response
 """
-def get_state_list():
-    response = query_rest_api('/state')
-    return response['data']
+def get_state_list(address=None):
+    if address is not None:
+        response = (query_rest_api('/state/%s',address) or query_rest_api('/state/address=%s',address))
+        return response
 
 def get_state(address):
     response = query_rest_api('/state/%s' % address)
