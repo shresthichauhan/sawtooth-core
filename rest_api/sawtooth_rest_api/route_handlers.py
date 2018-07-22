@@ -262,7 +262,7 @@ class RouteHandler:
             paging: Paging info and nav, like total resources and a next link
         """
         paging_controls = self._get_paging_controls(request)
-
+        head_id=self._state_head_id(request)
         head, root = await self._head_to_root(request.url.query.get(
             'head', None))
         validator_query = client_state_pb2.ClientStateListRequest(
@@ -1008,6 +1008,17 @@ class RouteHandler:
         return head_id
 
     @classmethod
+    def _state_head_id(cls, request):
+        """Fetches the request's head query, and validates if present.
+        """
+        head_id = request.url.query.get('head', None)
+
+        if head_id is not None:
+            cls._validate_state_id(head_id)
+
+        return head_id    
+
+    @classmethod
     def _get_filter_ids(cls, request):
         """Parses the `id` filter paramter from the url query.
         """
@@ -1021,6 +1032,14 @@ class RouteHandler:
             cls._validate_id(filter_id)
 
         return filter_ids
+
+    @staticmethod
+    def _validate_state_id(resource_id):
+        """Confirms a header_signature is 70 hex characters, raising an
+        ApiError if not.
+        """
+        if not re.fullmatch('[0-9a-f]{70}', resource_id):
+            raise errors.InvalidStateAddress(resource_id)
 
     @staticmethod
     def _validate_id(resource_id):
