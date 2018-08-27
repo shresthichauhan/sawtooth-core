@@ -106,8 +106,6 @@ class TestPost(RestApiBaseTest):
                 response = post_batch(batch)
             except urllib.error.HTTPError as error:
                 data = error.fp.read().decode('utf-8')
-            print("\n", response)
-            print("\n", response['data'][0]['status'])
         if response['data'][0]['status'] == 'PENDING':
             LOGGER.info('Batch status is pending as family name is not valid')
 
@@ -151,12 +149,10 @@ class TestPost(RestApiBaseTest):
                 response = post_batch(batch)
             except urllib.error.HTTPError as error:
                 data = error.fp.read().decode('utf-8')
-            print("\n", response)
-            print("\n", response['data'][0]['status'])
         if response['data'][0]['status'] == 'INVALID':
             print('Batch status is invalid as family address is not valid')
             LOGGER.info('Batch status is invalid as family address is not valid')            
-'''            
+            
     def test_rest_api_post_batch(self):
         """Tests that transactions are submitted and committed for
         each block that are created by submitting intkey batches
@@ -461,7 +457,6 @@ class TestPost(RestApiBaseTest):
                 LOGGER.info(data['error']['title'])
                 LOGGER.info(data['error']['message'])
                 assert data['error']['code'] == 30
-                assert data['error']['title'] =='Submitted Batches Invalid'
-'''   
+                assert data['error']['title'] =='Submitted Batches Invalid'   
 
         
