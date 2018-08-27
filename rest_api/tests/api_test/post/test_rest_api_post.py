@@ -45,7 +45,8 @@ from utils import post_batch, get_state_list , get_blocks , get_transactions, \
                   
 
 from payload import get_signer, create_intkey_transaction, create_batch,\
-                    create_intkey_same_transaction
+                    create_intkey_same_transaction, create_intkey_transaction_inv_add,\
+                    create_intkey_transaction_inv_fam_nam
 
 from base import RestApiBaseTest
 
@@ -66,6 +67,96 @@ pytestmark = pytest.mark.post
 
 
 class TestPost(RestApiBaseTest):
+    def test_rest_api_post_batch_inv_fam_nam(self):
+        signer = get_signer()
+        expected_trxn_ids  = []
+        expected_batch_ids = []
+    
+        LOGGER.info("Creating wrong family named intkey transactions with set operations")   
+        txns = [
+            create_intkey_transaction_inv_fam_nam("set", [], 50, signer), 
+        ]
+    
+        for txn in txns:
+            data = MessageToDict(
+                    txn,
+                    including_default_value_fields=True,
+                    preserving_proto_field_name=True)
+        
+            trxn_id = data['header_signature']
+            expected_trxn_ids.append(trxn_id)
+    
+        LOGGER.info("Creating batches for transactions 1trn/batch")
+
+        batches = [create_batch([txn], signer) for txn in txns]
+
+        for batch in batches:
+            data = MessageToDict(
+                    batch,
+                    including_default_value_fields=True,
+                    preserving_proto_field_name=True)
+        
+            batch_id = data['header_signature']
+            expected_batch_ids.append(batch_id)
+    
+        post_batch_list = [BatchList(batches=[batch]).SerializeToString() for batch in batches]    
+
+        for batch in post_batch_list:
+            try:
+                response = post_batch(batch)
+            except urllib.error.HTTPError as error:
+                data = error.fp.read().decode('utf-8')
+            print("\n", response)
+            print("\n", response['data'][0]['status'])
+        if response['data'][0]['status'] == 'PENDING':
+            LOGGER.info('Batch status is pending as family name is not valid')
+
+    def test_rest_api_post_batch_inv_intkey_add(self):
+        signer = get_signer()
+        expected_trxn_ids  = []
+        expected_batch_ids = []
+    
+        LOGGER.info("Creating wrong family address intkey transactions with set operations")   
+        txns = [
+            create_intkey_transaction_inv_add("set", [], 50, signer), 
+        ]
+    
+        for txn in txns:
+            data = MessageToDict(
+                    txn,
+                    including_default_value_fields=True,
+                    preserving_proto_field_name=True)
+        
+            trxn_id = data['header_signature']
+            expected_trxn_ids.append(trxn_id)
+    
+        LOGGER.info("Creating batches for transactions 1trn/batch")
+    
+        batches = [create_batch([txn], signer) for txn in txns]
+
+        for batch in batches:
+            data = MessageToDict(
+                    batch,
+                    including_default_value_fields=True,
+                    preserving_proto_field_name=True)
+        
+            batch_id = data['header_signature']
+            expected_batch_ids.append(batch_id)
+    
+        post_batch_list = [BatchList(batches=[batch]).SerializeToString() for batch in batches]    
+
+     
+        for batch in post_batch_list:
+            try:
+                response = post_batch(batch)
+            except urllib.error.HTTPError as error:
+                data = error.fp.read().decode('utf-8')
+            print("\n", response)
+            print("\n", response['data'][0]['status'])
+        if response['data'][0]['status'] == 'INVALID':
+            print('Batch status is invalid as family address is not valid')
+            LOGGER.info('Batch status is invalid as family address is not valid')            
+'''            
     def test_rest_api_post_batch(self):
         """Tests that transactions are submitted and committed for
         each block that are created by submitting intkey batches
@@ -371,6 +462,6 @@ class TestPost(RestApiBaseTest):
                 LOGGER.info(data['error']['message'])
                 assert data['error']['code'] == 30
                 assert data['error']['title'] =='Submitted Batches Invalid'
-    
+'''   
 
         

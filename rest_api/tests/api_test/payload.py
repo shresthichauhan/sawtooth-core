@@ -172,6 +172,61 @@ def create_intkey_same_transaction(verb, deps, count, signer):
 
     return transaction
 
+def create_intkey_transaction_inv_add(verb, deps, count, signer):
+    words = random_word_list(count)
+    name=random.choice(words)    
+    payload = IntKeyPayload(
+        verb=verb,name=name,value=1)
+
+    addr = make_intkey_bad_address(name)
+    header = TransactionHeader(
+        signer_public_key=signer.get_public_key().as_hex(),
+        family_name='intkey',
+        family_version='1.0',
+        inputs=[addr],
+        outputs=[addr],
+        dependencies=deps,
+        payload_sha512=payload.sha512(),
+        batcher_public_key=signer.get_public_key().as_hex())
+
+    header_bytes = header.SerializeToString()
+
+    signature = signer.sign(header_bytes)
+
+    transaction = Transaction(
+        header=header_bytes,
+        payload=payload.to_cbor(),
+        header_signature=signature)
+
+    return transaction
+
+def create_intkey_transaction_inv_fam_nam(verb, deps, count, signer):
+    words = random_word_list(count)
+    name=random.choice(words)    
+    payload = IntKeyPayload(
+        verb=verb,name=name,value=1)
+
+    addr = make_intkey_address(name)
+    header = TransactionHeader(
+        signer_public_key=signer.get_public_key().as_hex(),
+        family_name='abcdef',
+        family_version='1.0',
+        inputs=[addr],
+        outputs=[addr],
+        dependencies=deps,
+        payload_sha512=payload.sha512(),
+        batcher_public_key=signer.get_public_key().as_hex())
+
+    header_bytes = header.SerializeToString()
+
+    signature = signer.sign(header_bytes)
+
+    transaction = Transaction(
+        header=header_bytes,
+        payload=payload.to_cbor(),
+        header_signature=signature)
+
+    return transaction
 
 def create_batch(transactions, signer):
     transaction_signatures = [t.header_signature for t in transactions]
@@ -201,7 +256,10 @@ def get_signer():
 def make_intkey_address(name):
     return INTKEY_ADDRESS_PREFIX + hashlib.sha512(
         name.encode('utf-8')).hexdigest()[-64:]
-
+        
+def make_intkey_bad_address(name):
+    return INTKEY_ADDRESS_PREFIX + hashlib.sha512(
+        name.encode('utf-8')).hexdigest()[-62:]        
 
 def random_word():
     return ''.join([random.choice(string.ascii_letters) for _ in range(0, 6)])
