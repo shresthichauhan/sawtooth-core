@@ -1,0 +1,2 @@
+avalon-lmdb               | 2020-03-13 12:36:18,186 - INFO - response[text/plain; charset=utf-8]: b'v\n{\\n    "jsonrpc": "2.0",\\n    "id": 15,\\n    "error": {\\n        "code": -8,\\n        "message": "Decryption of client request hash failed. Request is tampered."\\n    }\\n}'
+avalon-listener           | [12:36:18 INFO    avalon_listener.tcs_listener] response[application/json]: {"error": {"code": 2, "message": "Decryption of client request hash failed. Request is tampered."}, "id": 15, "jsonrpc": "2.0"}
